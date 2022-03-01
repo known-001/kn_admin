@@ -36,10 +36,7 @@ Config.Screenshotwebhook = "" -- webhhok for forced screenshot
 
 #### Requirements
 
-### NONE
-
-Enjoy!
-Kn Dev Team 
+##### NONE
 
 ### Download & Instalation
 
@@ -58,6 +55,9 @@ git clone https://github.com/known-001/kn_admin/
 ### Instalation
 
 - Add `start kn_admin` to your server.cfg
+
+Enjoy!
+Kn Dev Team 
 
 ## Legal
 
