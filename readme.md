@@ -3,7 +3,7 @@
 ## Description
 
 This panel is a advanced fivem admin panel with fully custom functions and code.
-The code is optimized and ready for any servers with vSync.
+The code is optimized and ready for any servers with One Sync.
 
 #### Features
 
