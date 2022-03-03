@@ -61,7 +61,7 @@ git clone https://github.com/known-001/kn_admin/
 
 #### Manualy
 
-- Download <ttps://github.com/known-001/kn_admin/>
+- Download <https://github.com/known-001/kn_admin/>
 - Put it in the resources repository
 
 ### Instalation
