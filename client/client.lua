@@ -199,7 +199,6 @@ function checkDuty(type)
 				end
 			end
 		end
-		if onduty then
 	else
 		return true
 	end
