@@ -11,14 +11,14 @@ ESX.RegisterServerCallback('kn:admin:getPlayers', function(source, cb)
 	totalPlayer = 0
 	local players = {}
 	for k,v in pairs(ESX.GetPlayers()) do
-		players[GetPlayerIdentifiers(v)[1]] = {
+		players[GetPlayerIdentifiers(v)[2]] = {
 			name = GetPlayerName(v),
 			id = v,
-			playtime = 'WIP'
+			playtime = math.floor(activeTime[identifier].timePlay / 3600)
 		}
 		totalPlayer = totalPlayer + 1
 	end
-	cb(players, totalPlayer)
+	cb(players, totalPlayer, bannedTable)
 end)
 
 ESX.RegisterServerCallback('kn:admin:isAllowed', function(source, cb)
@@ -49,12 +49,8 @@ function isBanned(id)
 		if bannedTable[id].expire == 'perma' then
 			return bannedTable[id]
 		elseif bannedTable[id].expire < os.time() then
-			if bannedTable[id].expire ~= -1 then
-				removeBan(id)
-				return false
-			elseif bannedTable[id].expire == -1 then
-				return bannedTable[id] 
-			end
+			removeBan(id)
+			return false
 		else
 			return bannedTable[id]
 		end
@@ -67,8 +63,10 @@ function banUser(expireSeconds, id, re, playerId)
 	if expireSeconds == 'perma' then
 		bannedTable[id] = {
 			banner = id,
+			steam = id,
 			reason = re,
-			expire = expireSeconds
+			expire = expireSeconds,
+			name = GetPlayerName(playerId)
 		}
 
 		banexpire = 'PERMA'
@@ -87,8 +85,10 @@ function banUser(expireSeconds, id, re, playerId)
 
 		bannedTable[id] = {
 			banner = bannedBy,
+			steam = id,
 			reason = re,
-			expire = (os.time() + expireSeconds)
+			expire = (os.time() + expireSeconds),
+			name = GetPlayerName(playerId)
 		}
 
 		banexpire = (os.date("%c", os.time() + expireSeconds))
@@ -138,7 +138,7 @@ end)
 RegisterNetEvent('kn:admin:kick')
 AddEventHandler('kn:admin:kick', function(user, msg, isActive)
 
-	local playerHex = GetPlayerIdentifier(user)
+	local playerHex = GetPlayerIdentifiers(user)[2]
 
 	DropPlayer(user, msg)
 
@@ -172,7 +172,7 @@ AddEventHandler('kn:admin:ban', function(user, reason, time, isActive)
 	loadBans()
 
 	if isActive then
-		local playerHex = GetPlayerIdentifier(user)
+		local playerHex = GetPlayerIdentifiers(user)[2]
 
 		if time == "-1" then
 
@@ -207,7 +207,7 @@ local statePlayers = {}
 RegisterServerEvent('kn:admin:quick')
 AddEventHandler('kn:admin:quick', function(id, type, link)
 	setUp(id)
-	if ESX.GetPlayerFromId(source).getGroup() ~= 'user' then
+	if isPlayerAllowed(type, source) then
 		local targetPlayer = GetPlayerPed(id)
 		if type == "freeze" then 
 			if statePlayers[id].frozen then
@@ -231,11 +231,11 @@ AddEventHandler('kn:admin:quick', function(id, type, link)
 				embeds = {{
 					color = 000000, -- Colour in Hex #000000
 					author = {
-						name = "KN Admin",
+						name = Config.Screenshot.name,
 						icon_url = "https://i.imgur.com/DSYsW4y.png"
 					},
-					title = "Scrrenshot",
-					description = "This is a screenshot of a players screen. If this has proof of a person breaking a rule please save and ban them.",
+					title = Config.Screenshot.title,
+					description = Config.Screenshot.message,
 					fields = {
 						{
 							name = 'Player Name',
@@ -269,7 +269,7 @@ AddEventHandler('kn:admin:quick', function(id, type, link)
 				avatar_url = "https://i.imgur.com/DSYsW4y.png" -- Bot Profile Pic
 			}
 		
-			PerformHttpRequest(Config.Screenshotwebhook, function(err, text, headers) -- WEEBHOOK
+			PerformHttpRequest(Config.Screenshot.webhook, function(err, text, headers) -- WEEBHOOK
 				
 			end, 'POST', json.encode(message), {
 				['Content-Type'] = 'application/json' 
@@ -324,3 +324,23 @@ function setUp(id)
 		statePlayers[id] = {}		
 	end
 end
+
+function isPlayerAllowed(type, id)
+	for k,v in pairs(Config.Admin) do
+		if type == k then
+			if IsPlayerAceAllowed(id, v[2]) or ESX.GetPlayerFromId(id).getGroup() == v[1] then
+				return true
+			else
+				return false
+			end
+		end
+	end
+end
+
+RegisterCommand('setGroup', function(source, args)
+	if ESX.GetPlayerFromId(source).getGroup() == 'superadmin' or IsPlayerAceAllowed(source, "group.admin") then
+		if tonumber(args[1]) and args[2] then
+			
+		end
+	end
+end)

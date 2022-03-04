@@ -10,6 +10,7 @@
 		let selected = 0;
 		let adminId = 0;
 		let players = [];
+		let bans = [];
 		$(function () {
 			$(document).keyup(function (e) {
 				if (e.keyCode == 27) {
@@ -22,8 +23,8 @@
 				if (event.data.type == "open") {
 					$('#notexist').css('display', 'block');
 					$('#exist').css('display', 'none');
-					$('#notexist2').css('display', 'block');
-					$('#exist2').css('display', 'none');
+					$('#notexist-ban').css('display', 'block');
+					$('#exist-ban').css('display', 'none');
 					$("#admin").fadeIn();
 					$('input').val("");
 
@@ -38,6 +39,15 @@
 						$('#player_' + player.id).text(name.toLowerCase() + ', ' + player.id);
 					}
 
+					$('#list-bans').empty();
+					$('#list-bans').append('<input placeholder="Search Ban" type="text" class="user-filter">')
+					for (let i in event.data.bans) {
+						let ban = event.data.bans[i];
+						let name = ban.name;
+						$('#list').append('<div class="playerBans" id="ban_' + ban.steam + '"></div>');
+						$('#ban_' + ban.steam).text(name.toLowerCase() + ', ' + ban.steam);
+					}
+
 					$(".player").click(function () {
 						let id = $(this).attr('id').replace('player_', '');
 						selected = parseInt(id);
@@ -46,11 +56,27 @@
 						$(this).addClass('selected');
 
 						$('#exist').find('h1').text($(this).text());
-						$('#playtime').text(players[selected].playtime);
 
 						$('#notexist').css('display', 'none');
 						$('#exist').css('display', 'block');
 					});
+
+					$(".playerBans").click(function () {
+						let id = $(this).attr('id').replace('ban_', '');
+						selected = parseInt(id);
+
+						$('.playerBans').removeClass('selected');
+						$(this).addClass('selected');
+
+						$('#exist').find('h1').text($(this).text());
+						$('#ban-time').text(bans[selected].expiretime);
+						$('#ban-reason').text(bans[selected].reason);
+
+						$('#notexist-ban').css('display', 'block');
+						$('#exist-ban').css('display', 'none');
+					});
+
+					bans = event.data.bans;
 				}
 			});
 
@@ -60,37 +86,28 @@
 			});
 
 			$("#select_users").click(() => {
-				$('#offline-users').css('display', 'none');
-				$('#server').css('display', 'none');
+				$('#ban-users').css('display', 'none');
 				$('#users').css('display', 'block');
 				$(".tab").removeClass("selected");
 				$("#select_users").addClass("selected");
 				$("#select_users").blur();
 			});
 
-			$("#select_offline").click(() => {
+			$("#select_bans").click(() => {
 				$('#users').css('display', 'none');
-				$('#server').css('display', 'none');
-				$('#offline-users').css('display', 'block');
+				$('#ban-users').css('display', 'block');
 				$(".tab").removeClass("selected");
-				$("#select_offline").addClass("selected");
-				$("#select_offline").blur();
+				$("#select_bans").addClass("selected");
+				$("#select_bans").blur();
 			});
 
-			$("#server_select").click(() => {
-				$('#users').css('display', 'none');
-				$('#offline-users').css('display', 'none');
-				$('#server').css('display', 'block');
-				$(".tab").removeClass("selected");
-				$("#server_select").addClass("selected");
-				$("#server_select").blur();
-			});
 
 			// For ticket system
 
-			$("#setban-offline").click(function () {
-				$.post('http://kn_admin/ban-offline', JSON.stringify({ user: selected, param: $("#banreason-offline").val(), length: $("#bantime-offline").val() }));
+			$("#removeBan").click(function () {
+				$.post('http://kn_admin/removeBan', JSON.stringify({ user: selected, idenetifer: $("#banreason-offline").val()}));
 			});
+
 			var dutyOptions = false;
 			$(document).ready(function () {
 				$('#duty').click(function () {
@@ -173,8 +190,7 @@
 
 		<div id="tabs">
 			<button id="select_users" class="tab selected">Users</button>
-			<button id="select_offline" class="tab">Offline Users</button>
-			<button id="server_select" class="tab">Server Options</button>
+			<button id="select_bans" class="tab">Banned Players</button>
 		</div>
 
 		<div id="main">
@@ -225,26 +241,21 @@
 					</div>
 				</div>
 			</div>
-			<div id="offline-users">
-				<div id="list-offline">
+			<div id="bans-users">
+				<div id="list-bans">
 				</div>
-				<div id="selected">
-					<div id="notexist2">
+				<div id="selected-bans">
+					<div id="notexist-bans">
 						<h1>Select a player</h1>
 					</div>
-					<div id="exist2">
-						<h1>Kanersps</h1>
-						<div id="set">
-							<h3>Attributes</h3>
-							<div class="group_set">
-								<label>Ban Time (-1 For Perma)</label>
-								<input id="bantime-offline" type="text" placeholder="Ban Time"></input>
+					<div id="exist-bans">
+						<div class="actions">
+							<h1>Kanersps</h1>
+							<h3>Ban Reason: <span id="ban-reason"></span></h3>
+							<h3>Ban Remaning: <span id="ban-time"></span></h3>
+							<div id="quick">
+								<button class="quick" id="removeBan">Remove Ban</button>
 							</div>
-							<div class="group_set">
-								<label>Ban Player</label>
-								<input id="banreason-offline" type="text" placeholder="Ban Reason"></input>
-							</div>
-							<button id="setban-offline">Ban</button>
 						</div>
 					</div>
 				</div>

@@ -276,6 +276,74 @@ function Clamp(x, min, max)
     return vecX, vecY, vecZ
 end
   
+local noclipTarget = nil
+
+RegisterNetEvent('kn:admin:noClip')
+AddEventHandler('kn:admin:noClip', function()
+    toggleNoclip()
+end)
+
+RegisterNetEvent('freecam:onFreecamUpdate')
+AddEventHandler('freecam:onFreecamUpdate', function()
+    local position = GetPosition()
+    local rotation = GetRotation()
+
+    if(noclipTarget)then
+        SetEntityCoordsNoOffset(noclipTarget, position[0], position[1], position[2], false, false, false)
+        SetEntityRotation(noclipTarget, rotation[0], rotation[1], rotation[2], 0, true)
+    end
+end)
+
+function disableNoclip()
+    SetEntityInvincible(noclipTarget, false)
+    FreezeEntityPosition(noclipTarget, false)
+    SetEntityCollision(noclipTarget, true, true)
+    SetEntityVisible(noclipTarget, true, false)
+
+    if(noclipTarget ~= PlayerPedId())then
+        SetEntityVisible(PlayerPedId(), true, false)
+    end
+
+    noclipTarget = nil
+
+    SetEnabled(false)
+end
+
+function enableNoclip()
+    noclipTarget = PlayerPedId()
+
+    if (IsPedInAnyVehicle(noclipTarget)) then
+        noclipTarget = GetVehiclePedIsIn(noclipTarget, false)
+    end
+
+    if (!NetworkHasControlOfEntity(noclipTarget)) then
+        noclipTarget = nil
+        return
+    end
+
+    SetEntityInvincible(noclipTarget, true)
+    FreezeEntityPosition(noclipTarget, true)
+    SetEntityCollision(noclipTarget, false, false)
+    SetEntityVisible(noclipTarget, false, false)
+
+    if(noclipTarget ~= PlayerPedId())then
+        SetEntityVisible(PlayerPedId(), false, false)
+    end
+
+    local entityCoords = GetEntityCoords(noclipTarget)
+
+    SetEnabled(true)
+    SetPosition(...entityCoords)
+end
+
+function toggleNoclip()
+    if IsEnabled() then
+        disableNoclip()
+    else
+        enableNoclip()
+    end
+end
+
 
 --------------------------------------------------------------------------------
 
