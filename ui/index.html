@@ -4,7 +4,7 @@
 	<link rel="stylesheet" href="styles.css" type="text/css">
 	<script src="nui://game/ui/jquery.js" type="text/javascript"></script>
 
-	<style>#admin,#exist,#offline-users,#server { display: none; }</style>
+	<style>#admin,#exist,#bans-users,#server { display: none; }</style>
 
 	<script type="text/javascript">
 		let selected = 0;
@@ -23,8 +23,8 @@
 				if (event.data.type == "open") {
 					$('#notexist').css('display', 'block');
 					$('#exist').css('display', 'none');
-					$('#notexist-ban').css('display', 'block');
-					$('#exist-ban').css('display', 'none');
+					$('#notexist-bans').css('display', 'block');
+					$('#exist-bans').css('display', 'none');
 					$("#admin").fadeIn();
 					$('input').val("");
 
@@ -44,8 +44,10 @@
 					for (let i in event.data.bans) {
 						let ban = event.data.bans[i];
 						let name = ban.name;
-						$('#list').append('<div class="playerBans" id="ban_' + ban.steam + '"></div>');
-						$('#ban_' + ban.steam).text(name.toLowerCase() + ', ' + ban.steam);
+						let steam = ban.steam.substring(6);
+						bans[steam] = [];
+						$('#list-bans').append('<div class="playerBans" id="ban_' + steam + '"></div>');
+						$('#ban_' + steam).text(name + ', ' + steam);
 					}
 
 					$(".player").click(function () {
@@ -63,17 +65,18 @@
 
 					$(".playerBans").click(function () {
 						let id = $(this).attr('id').replace('ban_', '');
-						selected = parseInt(id);
+
+						console.log(JSON.stringify(bans[id]))
 
 						$('.playerBans').removeClass('selected');
 						$(this).addClass('selected');
 
 						$('#exist').find('h1').text($(this).text());
-						$('#ban-time').text(bans[selected].expiretime);
-						$('#ban-reason').text(bans[selected].reason);
+						$('#ban-time').text(bans[id].expire);
+						$('#ban-reason').text(bans[id].reason);
 
-						$('#notexist-ban').css('display', 'block');
-						$('#exist-ban').css('display', 'none');
+						$('#notexist-bans').css('display', 'none');
+						$('#exist-bans').css('display', 'block');
 					});
 
 					bans = event.data.bans;
@@ -86,7 +89,7 @@
 			});
 
 			$("#select_users").click(() => {
-				$('#ban-users').css('display', 'none');
+				$('#bans-users').css('display', 'none');
 				$('#users').css('display', 'block');
 				$(".tab").removeClass("selected");
 				$("#select_users").addClass("selected");
@@ -95,7 +98,7 @@
 
 			$("#select_bans").click(() => {
 				$('#users').css('display', 'none');
-				$('#ban-users').css('display', 'block');
+				$('#bans-users').css('display', 'block');
 				$(".tab").removeClass("selected");
 				$("#select_bans").addClass("selected");
 				$("#select_bans").blur();
@@ -190,7 +193,7 @@
 
 		<div id="tabs">
 			<button id="select_users" class="tab selected">Users</button>
-			<button id="select_bans" class="tab">Banned Players</button>
+			
 		</div>
 
 		<div id="main">

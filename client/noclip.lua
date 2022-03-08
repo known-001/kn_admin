@@ -57,6 +57,7 @@ local function GetFreecamPosition()
 end
 
 local function SetFreecamPosition(x, y, z)
+  print(x,y,z)
   local pos = vector3(x, y, z)
   local int = GetInteriorAtCoords(pos)
 
@@ -312,13 +313,13 @@ end
 function enableNoclip()
     noclipTarget = PlayerPedId()
 
-    if (IsPedInAnyVehicle(noclipTarget)) then
-        noclipTarget = GetVehiclePedIsIn(noclipTarget, false)
+    if IsPedInAnyVehicle(noclipTarget) then
+      noclipTarget = GetVehiclePedIsIn(noclipTarget, false)
     end
 
-    if (!NetworkHasControlOfEntity(noclipTarget)) then
-        noclipTarget = nil
-        return
+    if not NetworkHasControlOfEntity(noclipTarget) then
+      noclipTarget = nil
+      return
     end
 
     SetEntityInvincible(noclipTarget, true)
@@ -326,14 +327,14 @@ function enableNoclip()
     SetEntityCollision(noclipTarget, false, false)
     SetEntityVisible(noclipTarget, false, false)
 
-    if(noclipTarget ~= PlayerPedId())then
-        SetEntityVisible(PlayerPedId(), false, false)
+    if noclipTarget ~= PlayerPedId() then
+      SetEntityVisible(PlayerPedId(), false, false)
     end
 
     local entityCoords = GetEntityCoords(noclipTarget)
 
     SetEnabled(true)
-    SetPosition(...entityCoords)
+    SetPosition(entityCoords)
 end
 
 function toggleNoclip()

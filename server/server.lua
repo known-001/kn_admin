@@ -14,7 +14,7 @@ ESX.RegisterServerCallback('kn:admin:getPlayers', function(source, cb)
 		players[GetPlayerIdentifiers(v)[2]] = {
 			name = GetPlayerName(v),
 			id = v,
-			playtime = math.floor(activeTime[identifier].timePlay / 3600)
+			playtime = '1' --math.floor(activeTime[identifier].timePlay / 3600)
 		}
 		totalPlayer = totalPlayer + 1
 	end
@@ -38,6 +38,8 @@ end
 RegisterCommand("refresh_bans", function()
 	loadBans()
 end, true)
+
+loadBans()
 
 function removeBan(id)
 	bannedTable[id] = nil
@@ -207,7 +209,7 @@ local statePlayers = {}
 RegisterServerEvent('kn:admin:quick')
 AddEventHandler('kn:admin:quick', function(id, type, link)
 	setUp(id)
-	if isPlayerAllowed(type, source) then
+	if ESX.GetPlayerFromId(source).getGroup() ~= 'user' then
 		local targetPlayer = GetPlayerPed(id)
 		if type == "freeze" then 
 			if statePlayers[id].frozen then
@@ -322,18 +324,6 @@ end
 function setUp(id)
 	if statePlayers[id] == nil then
 		statePlayers[id] = {}		
-	end
-end
-
-function isPlayerAllowed(type, id)
-	for k,v in pairs(Config.Admin) do
-		if type == k then
-			if IsPlayerAceAllowed(id, v[2]) or ESX.GetPlayerFromId(id).getGroup() == v[1] then
-				return true
-			else
-				return false
-			end
-		end
 	end
 end
 

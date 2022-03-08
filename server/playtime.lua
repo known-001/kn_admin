@@ -71,4 +71,6 @@ function SET_PLAYER_TIME()
     SetTimeout(SAVE_PLAYER_TIME, SET_PLAYER_TIME)
 end
 
-SET_PLAYER_TIME()
+function GAME_READY()
+    SetTimeout(SAVE_PLAYER_TIME, SET_PLAYER_TIME)
+end

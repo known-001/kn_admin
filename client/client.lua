@@ -19,7 +19,8 @@ end)
 RegisterKeyMapping("openAdmin", "Admin Menu", "keyboard", 'HOME')
 
 RegisterCommand("openAdmin",function(source, args)
-	ESX.TriggerServerCallback('kn:core:isGroupAllowed', function(result) 
+	ESX.TriggerServerCallback('kn:admin:isAllowed', function(result) 
+		print(result)
 		if result ~= 'user' then
 			group = result
 			ESX.TriggerServerCallback('kn:admin:getPlayers', function(allPlayers, total, bans)
@@ -180,7 +181,7 @@ RegisterCommand('noclip', function()
 end)
 
 function checkDuty(type)
-	if not Config.Duty.requireAll then
+	if Config.Duty.requireAll then
 		for k,v in pairs(Config.Duty) do
 			if type == k then
 				if not v then
@@ -188,7 +189,6 @@ function checkDuty(type)
 				elseif v and onduty then
 					return true
 				else
-					return false
 					TriggerEvent("pNotify:SendNotification",{
 						text = "<h2>Admin Notification</h2>" .. "<h1>ADMIN:</h1>" .. "<p>You must be out of roleplay!</p>",
 						type = "success",
@@ -196,6 +196,7 @@ function checkDuty(type)
 						layout = "centerLeft",
 						queue = "global"
 					})
+					return false
 				end
 			end
 		end
